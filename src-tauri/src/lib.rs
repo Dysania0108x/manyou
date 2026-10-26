@@ -68,13 +68,31 @@ fn scan_folder(path: String) -> Result<Vec<MediaFile>, String> {
 #[tauri::command]
 fn path_exists(path: String) -> bool { Path::new(&path).is_file() }
 
+use base64::Engine;
+
+#[tauri::command]
+fn save_postcard_png(path: String, data_url: String) -> Result<(), String> {
+    let target = Path::new(&path);
+    if target.extension().and_then(|x| x.to_str()).map(|x| x.eq_ignore_ascii_case("png")) != Some(true) {
+        return Err("只能保存 PNG 文件".into());
+    }
+    let encoded = data_url.strip_prefix("data:image/png;base64,")
+        .ok_or("无效的 PNG 数据")?;
+    let bytes = base64::engine::general_purpose::STANDARD.decode(encoded)
+        .map_err(|e| e.to_string())?;
+    if bytes.len() > 40_000_000 || !bytes.starts_with(b"\\x89PNG\\r\\n\\x1a\\n") {
+        return Err("图片数据无效或过大".into());
+    }
+    std::fs::write(target, bytes).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_sql::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![scan_folder, path_exists])
+        .invoke_handler(tauri::generate_handler![scan_folder, path_exists, save_postcard_png])
         .run(tauri::generate_context!())
         .expect("运行漫游时发生错误");
 }
