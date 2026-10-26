@@ -13,9 +13,9 @@ type Props = {
   onClose: ()=>void;
 };
 const layouts:{id:PostcardLayout;name:string}[]=[
-  {id:'full',name:'满版'},
-  {id:'gallery',name:'留白'},
-  {id:'archive',name:'旅行卡片'}
+  {id:'full',name:'PHOTO'},
+  {id:'gallery',name:'GALLERY'},
+  {id:'archive',name:'ATLAS'}
 ];
 const WIDTH=1500, HEIGHT=1000;
 function fitText(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,maxWidth:number,lineHeight:number,maxLines:number) {
@@ -83,7 +83,7 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
   };
   return <div className="postcard-overlay" role="dialog" aria-modal="true" aria-label="编辑明信片">
     <div className="postcard-workspace">
-      <header className="postcard-toolbar"><button onClick={onClose}><X size={18}/> 返回</button><strong>POSTCARD STUDIO <span>明信片工作室</span></strong><div className="postcard-toolbar-actions"><button disabled={busy} onClick={exportSide}><Download size={16}/> 导出{back?'背面':'正面'}</button><button disabled={busy||(hasSaved&&!dirty)} onClick={persist}><Save size={16}/>{saved?'已保存':'保存'}</button></div></header>
+      <header className="postcard-toolbar"><button onClick={onClose}><X size={18}/> 返回</button><strong>POSTCARD STUDIO</strong><div className="postcard-toolbar-actions"><button disabled={busy} onClick={exportSide}><Download size={16}/> 导出{back?'背面':'正面'}</button><button disabled={busy||(hasSaved&&!dirty)} onClick={persist}><Save size={16}/>{saved?'已保存':'保存'}</button></div></header>
       <div className="postcard-main">
         <section className="postcard-stage">
           <div className="postcard-stage-top"><span>{back?'02 / BACK':'01 / FRONT'}</span><button onClick={()=>setBack(x=>!x)}><RotateCcw size={15}/> 翻转明信片</button></div>
@@ -94,12 +94,12 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
           <div className="postcard-stage-bottom"><button onClick={()=>setBack(false)} className={!back?'current':''}><ArrowLeft size={14}/> 正面</button><button onClick={()=>setBack(true)} className={back?'current':''}>背面 <ArrowRight size={14}/></button></div>
         </section>
         <aside className="postcard-settings">
-          <h2>明信片</h2>
-          <label>正面版式</label>
+          <h2>Design your card</h2>
+          <label>LAYOUT</label>
           <div className="postcard-layout-options">{layouts.map(l=><button key={l.id} className={draft.layout===l.id?'selected':''} onClick={()=>{update({layout:l.id});setBack(false)}}><div className={'layout-swatch swatch-'+l.id}><div/></div><span>{l.name}</span></button>)}</div>
-          <label htmlFor="postcard-location">地点（可选）</label><input id="postcard-location" value={draft.location} onChange={e=>update({location:e.target.value})} placeholder="某个地方"/>
-          <label htmlFor="postcard-date">日期（可选）</label><input id="postcard-date" value={draft.dateLabel} onChange={e=>update({dateLabel:e.target.value})} placeholder="某一天"/>
-          <label htmlFor="postcard-message">背面文字</label><textarea id="postcard-message" rows={7} value={draft.message} onChange={e=>update({message:e.target.value})} placeholder="写给过去、未来，或者某个人……"/>
+          <label htmlFor="postcard-location">LOCATION · OPTIONAL</label><input id="postcard-location" value={draft.location} onChange={e=>update({location:e.target.value})} placeholder="某个地方"/>
+          <label htmlFor="postcard-date">DATE · OPTIONAL</label><input id="postcard-date" value={draft.dateLabel} onChange={e=>update({dateLabel:e.target.value})} placeholder="某一天"/>
+          <label htmlFor="postcard-message">YOUR MESSAGE</label><textarea id="postcard-message" rows={7} value={draft.message} onChange={e=>update({message:e.target.value})} placeholder="写给过去、未来，或者某个人……"/>
           <div className="postcard-settings-footer"><button onClick={async()=>{if(window.confirm('删除这张明信片？原始照片不会被删除。'))await onDelete(draft.id);}}><Trash2 size={14}/> 删除明信片</button><span>原图不会被修改</span></div>
           {error&&<div className="postcard-error">{error}</div>}
         </aside>
