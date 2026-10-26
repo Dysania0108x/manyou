@@ -28,14 +28,14 @@ export default function App(){
   const [photoUrls,setPhotoUrls]=useState<Record<string,string>>({});
   const reload=async()=>{const [r,m]=await Promise.all([loadRoots(),loadMedia()]);setRoots(r);setItems(m);};
   useEffect(()=>{reload().catch(e=>setError(String(e)));},[]);
-  const scanRoot=async(root:SourceRoot)=>{
-    setLoading(true);setError('');
+  const scanRoot=async(root:SourceRoot,manageLoading=true)=>{
+    if(manageLoading)setLoading(true);setError('');
     try{
       const scanned=await invoke<ScanResult[]>('scan_folder',{path:root.path});
       const existing=items;
       const converted:MediaItem[]=scanned.map(f=>({id:makeId(),rootId:root.id,path:f.path,relativePath:f.relativePath,filename:f.filename,extension:f.extension,kind:f.kind,size:f.size,modifiedAt:f.modifiedAt,createdAt:new Date().toISOString(),favorite:existing.some(e=>e.path===f.path&&e.favorite),online:true,folderName:f.folderName}));
       await replaceScannedFiles(root,converted);await reload();setNotice('已更新 '+converted.length+' 个文件');
-    }catch(e){setError('扫描失败：'+String(e));}finally{setLoading(false);}
+    }catch(e){setError('扫描失败：'+String(e));}finally{if(manageLoading)setLoading(false);}
   };
   const chooseFolder=async()=>{
     const selected=await open({directory:true,multiple:true,title:'选择照片文件夹'});
@@ -47,7 +47,7 @@ export default function App(){
         const existing=roots.find(r=>r.path===path);
         const root=existing||{id:makeId(),path,displayName:path.split('/').filter(Boolean).pop()||path,createdAt:new Date().toISOString()};
         await addRoot(root);
-        await scanRoot(root);
+        await scanRoot(root,false);
       }
       await reload();
     }catch(e){setError('添加失败：'+String(e));}finally{setLoading(false);}
@@ -62,7 +62,7 @@ export default function App(){
   useEffect(()=>{let active=true;const candidates=visible.filter(x=>x.kind==='image'&&!photoUrls[x.path]).slice(0,120);if(!candidates.length)return;Promise.all(candidates.map(async x=>[x.path,convertFileSrc(x.path)] as const)).then(pairs=>{if(active)setPhotoUrls(old=>({...old,...Object.fromEntries(pairs)}));});return()=>{active=false;};},[visible,photoUrls]);
   const pickMedia=async(item:MediaItem)=>{try{setSelection({...item,thumbnailPath:convertFileSrc(item.path)});}catch{setSelection(item);}};
   const favorite=async(item:MediaItem)=>{const next=await toggleFavorite(item);setItems(old=>old.map(x=>x.path===item.path?{...x,favorite:next}:x));if(selection?.path===item.path)setSelection({...selection,favorite:next});};
-  const scanAll=async()=>{for(const root of roots)await scanRoot(root);};
+  const scanAll=async()=>{if(loading)return;setLoading(true);try{for(const root of roots)await scanRoot(root,false);}finally{setLoading(false);}};
   const renameRoot=async()=>{if(!renameId||!renameValue.trim())return;await updateRootName(renameId,renameValue.trim());setRoots(await loadRoots());setRenameId(null);};
   const removeSource=async(root:SourceRoot)=>{if(!window.confirm('从漫游索引中移除“'+root.displayName+'”？不会删除原始文件。'))return;await removeRoot(root.id);if(activeRoot===root.id)setActiveRoot(null);await reload();};
   const heading=view==='全部'?'照片':view==='地点相册'?'文件夹':view==='时间线'?'时光':'收藏';
