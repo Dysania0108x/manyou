@@ -25,6 +25,15 @@ fn supported_kind(path: &Path) -> Option<&'static str> {
     }
 }
 
+fn timestamp_string(path: &Path) -> String {
+    std::fs::metadata(path)
+        .ok()
+        .and_then(|m| m.modified().ok())
+        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|| "0".into())
+}
+
 #[tauri::command]
 fn scan_folder(path: String) -> Result<Vec<MediaFile>, String> {
     let root = PathBuf::from(&path);
@@ -37,15 +46,19 @@ fn scan_folder(path: String) -> Result<Vec<MediaFile>, String> {
         let full = item.path();
         let Some(kind) = supported_kind(full) else { continue; };
         let metadata = match std::fs::metadata(full) { Ok(m) => m, Err(_) => continue };
-        let modified = metadata.modified().ok().and_then(|t| t.duration_since(UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
         let rel = full.strip_prefix(&root).unwrap_or(full).to_string_lossy().to_string();
         let filename = full.file_name().unwrap_or_default().to_string_lossy().to_string();
         let extension = full.extension().unwrap_or_default().to_string_lossy().to_ascii_lowercase();
         let folder_name = full.parent().and_then(Path::file_name).unwrap_or(root.as_os_str()).to_string_lossy().to_string();
         output.push(MediaFile {
-            path: full.to_string_lossy().to_string(), relative_path: rel,
-            filename, extension, kind: kind.into(), size: metadata.len(),
-            modified_at: modified.to_string(), folder_name,
+            path: full.to_string_lossy().to_string(),
+            relative_path: rel,
+            filename,
+            extension,
+            kind: kind.into(),
+            size: metadata.len(),
+            modified_at: timestamp_string(full),
+            folder_name,
         });
     }
     output.sort_by(|a,b| b.modified_at.cmp(&a.modified_at));
