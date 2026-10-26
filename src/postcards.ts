@@ -5,6 +5,7 @@ export type Postcard = {
   id: string;
   photoPath: string;
   layout: PostcardLayout;
+  backStyle?: 'letter' | 'map';
   message: string;
   location: string;
   dateLabel: string;
@@ -24,6 +25,8 @@ async function getDb() {
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`);
+  const cols=await database.select<Array<{name:string}>>('PRAGMA table_info(postcards)');
+  if(!cols.some(c=>c.name==='back_style'))await database.execute("ALTER TABLE postcards ADD COLUMN back_style TEXT NOT NULL DEFAULT 'letter'");
   return database;
 }
 export async function loadPostcards(): Promise<Postcard[]> {
