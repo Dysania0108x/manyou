@@ -157,3 +157,25 @@ body{background:#fafafa}
 .postcard-settings-footer button{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#ad6662;font-size:11px}
 .postcard-error{padding:10px;background:#f8e9e7;color:#9d4c46;font-size:11px;line-height:1.6}
 @media(max-width:950px){.postcard-main{grid-template-columns:minmax(0,1fr) 280px}.postcard-settings{padding:24px 18px}.postcard-stage{padding:20px}}
+
+
+/* Unbranded personal postcard: no app mark, stamps, addresses or forced captions */
+.postcard-paper.layout-gallery{padding:4.5% 4.5% 0}
+.postcard-paper.layout-gallery .postcard-image{height:86%}
+.postcard-paper.layout-archive{padding:7% 7% 0}
+.postcard-paper.layout-archive .postcard-image{height:77%}
+.postcard-front-caption{height:auto;min-height:12%;padding:1.5% 0;gap:3px;justify-content:center;font-size:clamp(10px,1.1vw,16px)}
+.postcard-front-caption:empty{display:none}
+.postcard-front-caption strong{font-size:1em;font-weight:500;letter-spacing:0}
+.postcard-front-caption span{font-size:.8em}
+.postcard-paper.is-back{background:#f8f6f1}
+.postcard-back{padding:9% 10%}
+.postcard-back-grid{display:flex;flex-direction:column;gap:20px;margin:0;height:100%}
+.postcard-handwriting{flex:1;font-size:clamp(17px,1.7vw,25px);line-height:1.9}
+.postcard-handwriting textarea{font:inherit;line-height:inherit;color:#292929;width:100%;height:100%;min-height:150px;resize:none;border:0;outline:0;background:transparent;display:block;padding:0}
+.postcard-handwriting textarea::placeholder{color:#b5b2aa}
+.postcard-address{border:0;padding:0;display:flex;flex-direction:row;justify-content:flex-start;gap:24px;font-size:clamp(11px,1vw,16px);color:#8d8a84;flex-wrap:wrap}
+.postcard-settings h2{font-size:23px;margin:4px 0 20px}
+.postcard-settings label{margin-top:10px}
+.postcard-setting-title,.postcard-settings>p{display:none}
+.postcard-stage{background:#f3f3f3}
