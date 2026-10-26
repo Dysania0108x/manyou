@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "icon:generate": "tauri icon public/app-icon.svg"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",
