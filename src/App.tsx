@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import { openPath } from '@tauri-apps/plugin-opener';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Clock3, FolderOpen, Heart, Image as ImageIcon, LayoutGrid, List, Play, RefreshCw, Search, Shuffle, Video, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, FolderOpen, Heart, Image as ImageIcon, LayoutGrid, List, Play, RefreshCw, Search, Shuffle, Video, X } from 'lucide-react';
 import type { MediaItem, SourceRoot } from './types';
 import { addRoot, loadMedia, loadRoots, removeRoot, replaceScannedFiles, toggleFavorite, updateRootName } from './storage';
 
