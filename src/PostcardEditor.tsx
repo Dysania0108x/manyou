@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { save } from '@tauri-apps/plugin-dialog';
 import { ArrowLeft, ArrowRight, Download, RotateCcw, Save, Trash2, X } from 'lucide-react';
@@ -15,7 +15,7 @@ type Props = {
 const layouts:{id:PostcardLayout;name:string}[]=[
   {id:'full',name:'满版'},
   {id:'gallery',name:'留白'},
-  {id:'archive',name:'档案'}
+  {id:'archive',name:'旅行卡片'}
 ];
 const WIDTH=1500, HEIGHT=1000;
 function fitText(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,maxWidth:number,lineHeight:number,maxLines:number) {
@@ -34,17 +34,13 @@ async function renderCanvas(card:Postcard,photoUrl:string,back:boolean):Promise<
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('无法创建图片画布');
   ctx.fillStyle='#f7f5f0';ctx.fillRect(0,0,WIDTH,HEIGHT);
   if(back){
-    ctx.fillStyle='#242527';ctx.font='bold 28px sans-serif';ctx.fillText('MANYOU / POSTCARD',80,92);
-    ctx.strokeStyle='#b7b6b0';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(760,155);ctx.lineTo(760,870);ctx.stroke();
-    ctx.strokeRect(1190,82,220,190);
-    ctx.font='22px sans-serif';ctx.fillStyle='#777';ctx.fillText('STAMP',1250,180);
+    ctx.fillStyle='#242527';
+
     ctx.fillStyle='#292929';ctx.font='36px sans-serif';
-    fitText(ctx,card.message,90,270,580,65,9);
+    fitText(ctx,card.message,120,245,1230,65,10);
     ctx.font='24px sans-serif';ctx.fillStyle='#777';
-    fitText(ctx,card.location,825,700,540,42,2);
-    fitText(ctx,card.dateLabel,825,790,540,42,2);
-    ctx.font='20px sans-serif';ctx.fillText('A MOMENT, KEPT.',90,918);
+    if(card.location)fitText(ctx,card.location,120,825,1100,42,2);
+    if(card.dateLabel)fitText(ctx,card.dateLabel,120,890,1100,42,2);
   }else{
     const image=new Image();image.crossOrigin='anonymous';image.src=photoUrl;
     await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=()=>reject(new Error('无法读取这张照片，请确认原件仍在本地。'));});
@@ -56,9 +52,9 @@ async function renderCanvas(card:Postcard,photoUrl:string,back:boolean):Promise<
     ctx.drawImage(image,(image.naturalWidth-cropW)/2,(image.naturalHeight-cropH)/2,cropW,cropH,margin,margin,w,h);
     if(card.layout!=='full'){
       ctx.fillStyle='#292a2c';ctx.font='bold 24px sans-serif';
-      ctx.fillText(card.layout==='gallery'?'MANYOU':(card.location||'MANYOU').toUpperCase(),margin,HEIGHT-67);
+      if(card.location)ctx.fillText(card.location,margin,HEIGHT-67);
       ctx.fillStyle='#818286';ctx.font='22px sans-serif';
-      ctx.fillText(card.dateLabel||'A MOMENT, KEPT.',margin,HEIGHT-30);
+      if(card.dateLabel)ctx.fillText(card.dateLabel,margin,HEIGHT-30);
     }
   }
   return canvas;
@@ -71,8 +67,6 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
   const [saved,setSaved]=useState(false);
   const photoUrl=media?.online?convertFileSrc(media.path):'';
   const dirty=JSON.stringify({layout:draft.layout,message:draft.message,location:draft.location,dateLabel:draft.dateLabel})!==JSON.stringify({layout:card.layout,message:card.message,location:card.location,dateLabel:card.dateLabel});
-  const liveRef=useRef(draft);
-  useEffect(()=>{liveRef.current=draft;},[draft]);
   const update=(patch:Partial<Postcard>)=>{setDraft(v=>({...v,...patch}));setSaved(false);};
   const persist=async()=>{setBusy(true);setError('');try{await onSave({...draft,updatedAt:new Date().toISOString()});setSaved(true);}catch(e){setError(String(e));}finally{setBusy(false);}};
   const exportSide=async()=>{
@@ -93,15 +87,13 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
         <section className="postcard-stage">
           <div className="postcard-stage-top"><span>{back?'02 / BACK':'01 / FRONT'}</span><button onClick={()=>setBack(x=>!x)}><RotateCcw size={15}/> 翻转明信片</button></div>
           <button className={'postcard-paper '+(back?'is-back':'')+' layout-'+draft.layout} onClick={()=>setBack(x=>!x)} title="点击翻面">
-            {back?<div className="postcard-back"><div className="postcard-back-head">MANYOU / POSTCARD</div><div className="postcard-back-grid"><div className="postcard-handwriting">{draft.message||'写给某个地方，某一天。'}</div><div className="postcard-address"><div className="postcard-stamp">STAMP</div><span>{draft.location||'PLACE'}</span><span>{draft.dateLabel||'DATE'}</span></div></div><small>A MOMENT, KEPT.</small></div>:
-              <><div className="postcard-image">{photoUrl?<img src={photoUrl} alt="明信片照片"/>:<div className="postcard-missing">原始照片暂时不可用</div>}</div>{draft.layout!=='full'&&<div className="postcard-front-caption"><strong>{draft.layout==='archive'?draft.location||'MANYOU':'MANYOU'}</strong><span>{draft.dateLabel||'A MOMENT, KEPT.'}</span></div>}</>}
+            {back?<div className="postcard-back"><div className="postcard-back-grid"><div className="postcard-handwriting">{draft.message}</div><div className="postcard-address">{draft.location&&<span>{draft.location}</span>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div></div></div>:
+              <><div className="postcard-image">{photoUrl?<img src={photoUrl} alt="明信片照片"/>:<div className="postcard-missing">原始照片暂时不可用</div>}</div>{draft.layout!=='full'&&<div className="postcard-front-caption">{draft.location&&<strong>{draft.location}</strong>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div>}</>}
           </button>
           <div className="postcard-stage-bottom"><button onClick={()=>setBack(false)} className={!back?'current':''}><ArrowLeft size={14}/> 正面</button><button onClick={()=>setBack(true)} className={back?'current':''}>背面 <ArrowRight size={14}/></button></div>
         </section>
         <aside className="postcard-settings">
-          <div className="postcard-setting-title">MAKE IT YOURS <span>01 / 03</span></div>
-          <h2>留住这一刻。</h2>
-          <p>一张照片，两面故事。</p>
+          <h2>明信片</h2>
           <label>正面版式</label>
           <div className="postcard-layout-options">{layouts.map(l=><button key={l.id} className={draft.layout===l.id?'selected':''} onClick={()=>{update({layout:l.id});setBack(false)}}><div className={'layout-swatch swatch-'+l.id}><div/></div><span>{l.name}</span></button>)}</div>
           <label htmlFor="postcard-location">地点（可选）</label><input id="postcard-location" value={draft.location} onChange={e=>update({location:e.target.value})} placeholder="某个地方"/>
