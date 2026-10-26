@@ -60,11 +60,6 @@ export default function App(){
     return [...list].sort((a,b)=>Number(b.modifiedAt)-Number(a.modifiedAt));
   },[items,view,activeRoot,query]);
   useEffect(()=>{let active=true;const candidates=visible.filter(x=>x.kind==='image'&&!photoUrls[x.path]).slice(0,120);if(!candidates.length)return;Promise.all(candidates.map(async x=>[x.path,convertFileSrc(x.path)] as const)).then(pairs=>{if(active)setPhotoUrls(old=>({...old,...Object.fromEntries(pairs)}));});return()=>{active=false;};},[visible,photoUrls]);
-  const folderGroups=useMemo(()=>{
-    const m=new Map<string,MediaItem[]>();
-    for(const item of visible){const key=item.folderName||'其他照片';m.set(key,[...(m.get(key)||[]),item]);}
-    return [...m.entries()].sort((a,b)=>a[0].localeCompare(b[0],'zh-CN'));
-  },[visible]);
   const pickMedia=async(item:MediaItem)=>{try{setSelection({...item,thumbnailPath:convertFileSrc(item.path)});}catch{setSelection(item);}};
   const favorite=async(item:MediaItem)=>{const next=await toggleFavorite(item);setItems(old=>old.map(x=>x.path===item.path?{...x,favorite:next}:x));if(selection?.path===item.path)setSelection({...selection,favorite:next});};
   const scanAll=async()=>{for(const root of roots)await scanRoot(root);};
