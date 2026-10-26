@@ -179,3 +179,34 @@ body{background:#fafafa}
 .postcard-settings label{margin-top:10px}
 .postcard-setting-title,.postcard-settings>p{display:none}
 .postcard-stage{background:#f3f3f3}
+
+
+/* Postcard Studio — editorial print direction, English typography, no product branding */
+.postcard-stage{background:#dedfe1}
+.postcard-paper{background:#fff;box-shadow:0 22px 55px #10111524}
+.postcard-paper.layout-full{padding:0}
+.postcard-paper.layout-gallery{padding:6.2% 6.2% 0}
+.postcard-paper.layout-gallery .postcard-image{height:75%}
+.postcard-paper.layout-gallery .postcard-front-caption{min-height:20%;padding:3% 0;justify-content:flex-start}
+.postcard-paper.layout-archive{padding:5% 5% 0}
+.postcard-paper.layout-archive .postcard-image{height:67%}
+.postcard-paper.layout-archive .postcard-front-caption{min-height:27%;display:flex;justify-content:center;gap:4px;padding:2% 0}
+.postcard-paper.layout-archive .postcard-front-caption strong{font-size:clamp(26px,4.8vw,65px);font-weight:700;letter-spacing:-2px;line-height:1;text-transform:uppercase}
+.postcard-paper.layout-archive .postcard-front-caption span{font-size:clamp(10px,1vw,16px);letter-spacing:1.8px;text-transform:uppercase}
+.postcard-paper.layout-gallery .postcard-front-caption strong{font-size:clamp(13px,1.5vw,22px);font-weight:500;letter-spacing:0}
+.postcard-paper.layout-gallery .postcard-front-caption span{font-size:clamp(10px,1vw,14px);letter-spacing:1px}
+.postcard-paper.is-back{background:#fff}
+.postcard-back{padding:7% 8% 8%}
+.postcard-back-title{font-size:clamp(15px,2vw,28px);font-weight:500;letter-spacing:4px;padding-bottom:4%;border-bottom:1px solid #d4d4d4}
+.postcard-back-grid{padding-top:7%}
+.postcard-handwriting textarea{font-family:Georgia,"Songti SC",serif;font-size:clamp(19px,2vw,30px);line-height:1.75}
+.postcard-address{font-family:Inter,-apple-system,sans-serif;text-transform:uppercase;letter-spacing:1.4px;font-size:clamp(10px,1vw,14px)}
+.postcard-settings h2{font-size:26px;font-weight:500;letter-spacing:-1px}
+.postcard-settings label{font-size:10px;letter-spacing:1.2px;font-weight:600;color:#73777c}
+.postcard-layout-options{gap:9px}
+.postcard-layout-options button{padding:7px;border:0;border-bottom:2px solid transparent;border-radius:0;font-size:10px;letter-spacing:1px}
+.postcard-layout-options button.selected{background:#f4f5f5;border-bottom-color:#1b1d20}
+.layout-swatch{background:#e8e8e8}
+.swatch-full{padding:0}.swatch-gallery{padding:9px 9px 16px}.swatch-archive{padding:7px 7px 23px}
+.swatch-archive:after{content:"CITY";display:block;font-size:8px;font-weight:700;letter-spacing:1px;margin-top:3px;color:#333}
+.postcard-toolbar strong{font-size:11px;letter-spacing:2.3px}
