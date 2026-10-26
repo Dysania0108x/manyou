@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
+import { openPath } from '@tauri-apps/plugin-opener';
 import { invoke, convertFileSrc } from '@tauri-apps/api/core';
 import { ArrowUpRight, Clock3, FolderOpen, Heart, Image as ImageIcon, LayoutGrid, List, Play, RefreshCw, Search, Video, X } from 'lucide-react';
 import type { MediaItem, SourceRoot } from './types';
