@@ -83,3 +83,5 @@ body{background:#fafafa}
 .message{border-radius:3px;background:#eef1f7;color:#46516a}
 @media(max-width:1050px){.editorial-header{grid-template-columns:auto 1fr auto;gap:12px}.editorial-nav{justify-content:center;gap:18px}.editorial-tools{gap:7px}.photo-wall{columns:3 190px}}
 @media(max-width:740px){.editorial-header{padding:0 18px}.editorial-brand{font-size:17px}.editorial-brand span{display:none}.editorial-nav{gap:10px}.editorial-nav button{font-size:11px}.editorial-tools .header-add{font-size:0;padding:10px}.editorial-tools .header-add:first-letter{font-size:16px}.main{padding:0 18px}.photo-wall{columns:2 150px}}
+
+.auto-load-sentinel{min-height:32px;display:flex;align-items:center;justify-content:center;margin:16px 0 22px;color:#b1b3b6;font-size:10px;letter-spacing:.6px}.auto-load-sentinel span{opacity:.8}
