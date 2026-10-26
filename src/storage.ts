@@ -27,10 +27,12 @@ export async function replaceScannedFiles(root:SourceRoot,items:MediaItem[]) {
   await db!.execute('UPDATE source_roots SET last_scanned_at=$1 WHERE id=$2',[new Date().toISOString(),root.id]);
   const existing=await db!.select<any[]>('SELECT path,favorite FROM media_items WHERE root_id=$1',[root.id]);
   const favorites=new Map<string,boolean>(existing.map(r=>[r.path,Boolean(r.favorite)]));
-  await db!.execute('DELETE FROM media_items WHERE root_id=$1',[root.id]);
   for(const item of items){
-    await db!.execute('INSERT INTO media_items (id,root_id,path,relative_path,filename,extension,kind,size,modified_at,folder_name,favorite,online) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,1)',[item.id,item.rootId,item.path,item.relativePath,item.filename,item.extension,item.kind,item.size,item.modifiedAt,item.folderName,favorites.get(item.path)?1:0]);
+    await db!.execute('INSERT INTO media_items (id,root_id,path,relative_path,filename,extension,kind,size,modified_at,folder_name,favorite,online) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,1) ON CONFLICT(path) DO UPDATE SET relative_path=excluded.relative_path,filename=excluded.filename,extension=excluded.extension,kind=excluded.kind,size=excluded.size,modified_at=excluded.modified_at,folder_name=excluded.folder_name,online=1',[item.id,item.rootId,item.path,item.relativePath,item.filename,item.extension,item.kind,item.size,item.modifiedAt,item.folderName,favorites.get(item.path)?1:0]);
   }
+  const scannedPaths=new Set(items.map(i=>i.path));
+  for(const row of existing){ if(!scannedPaths.has(row.path)) await db!.execute('UPDATE media_items SET online=0 WHERE path=$1',[row.path]); }
+
 }
 export async function toggleFavorite(item:MediaItem) {
   if(!db) await openStore();
