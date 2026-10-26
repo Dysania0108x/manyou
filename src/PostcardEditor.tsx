@@ -65,10 +65,11 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState('');
   const [saved,setSaved]=useState(false);
+  const [hasSaved,setHasSaved]=useState(false);
   const photoUrl=media?.online?convertFileSrc(media.path):'';
   const dirty=JSON.stringify({layout:draft.layout,message:draft.message,location:draft.location,dateLabel:draft.dateLabel})!==JSON.stringify({layout:card.layout,message:card.message,location:card.location,dateLabel:card.dateLabel});
   const update=(patch:Partial<Postcard>)=>{setDraft(v=>({...v,...patch}));setSaved(false);};
-  const persist=async()=>{setBusy(true);setError('');try{await onSave({...draft,updatedAt:new Date().toISOString()});setSaved(true);}catch(e){setError(String(e));}finally{setBusy(false);}};
+  const persist=async()=>{setBusy(true);setError('');try{await onSave({...draft,updatedAt:new Date().toISOString()});setSaved(true);setHasSaved(true);}catch(e){setError(String(e));}finally{setBusy(false);}};
   const exportSide=async()=>{
     if(!photoUrl){setError('照片原件不可用，无法导出。');return;}
     setBusy(true);setError('');
@@ -82,14 +83,14 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
   };
   return <div className="postcard-overlay" role="dialog" aria-modal="true" aria-label="编辑明信片">
     <div className="postcard-workspace">
-      <header className="postcard-toolbar"><button onClick={onClose}><X size={18}/> 返回</button><strong>POSTCARD STUDIO <span>明信片工作室</span></strong><div className="postcard-toolbar-actions"><button disabled={busy} onClick={exportSide}><Download size={16}/> 导出{back?'背面':'正面'}</button><button disabled={busy||!dirty} onClick={persist}><Save size={16}/>{saved?'已保存':'保存'}</button></div></header>
+      <header className="postcard-toolbar"><button onClick={onClose}><X size={18}/> 返回</button><strong>POSTCARD STUDIO <span>明信片工作室</span></strong><div className="postcard-toolbar-actions"><button disabled={busy} onClick={exportSide}><Download size={16}/> 导出{back?'背面':'正面'}</button><button disabled={busy||(hasSaved&&!dirty)} onClick={persist}><Save size={16}/>{saved?'已保存':'保存'}</button></div></header>
       <div className="postcard-main">
         <section className="postcard-stage">
           <div className="postcard-stage-top"><span>{back?'02 / BACK':'01 / FRONT'}</span><button onClick={()=>setBack(x=>!x)}><RotateCcw size={15}/> 翻转明信片</button></div>
-          <button className={'postcard-paper '+(back?'is-back':'')+' layout-'+draft.layout} onClick={()=>setBack(x=>!x)} title="点击翻面">
-            {back?<div className="postcard-back"><div className="postcard-back-grid"><div className="postcard-handwriting">{draft.message}</div><div className="postcard-address">{draft.location&&<span>{draft.location}</span>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div></div></div>:
-              <><div className="postcard-image">{photoUrl?<img src={photoUrl} alt="明信片照片"/>:<div className="postcard-missing">原始照片暂时不可用</div>}</div>{draft.layout!=='full'&&<div className="postcard-front-caption">{draft.location&&<strong>{draft.location}</strong>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div>}</>}
-          </button>
+          <div className={'postcard-paper '+(back?'is-back':'')+' layout-'+draft.layout} onClick={()=>{if(!back)setBack(true)}} title={back?'在卡片上直接写字':'点击翻面'}>
+            {back?<div className="postcard-back"><div className="postcard-back-grid"><div className="postcard-handwriting" onClick={e=>e.stopPropagation()}><textarea aria-label="明信片背面文字" value={draft.message} onChange={e=>update({message:e.target.value})} placeholder="写一点什么……" /></div><div className="postcard-address">{draft.location&&<span>{draft.location}</span>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div></div></div>:
+              <><div className="postcard-image">{photoUrl?<img src={photoUrl} alt="明信片照片"/>:<div className="postcard-missing">原始照片暂时不可用</div>}</div>{draft.layout!=='full'&&(draft.location||draft.dateLabel)&&<div className="postcard-front-caption">{draft.location&&<strong>{draft.location}</strong>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div>}</>}
+          </div>
           <div className="postcard-stage-bottom"><button onClick={()=>setBack(false)} className={!back?'current':''}><ArrowLeft size={14}/> 正面</button><button onClick={()=>setBack(true)} className={back?'current':''}>背面 <ArrowRight size={14}/></button></div>
         </section>
         <aside className="postcard-settings">
