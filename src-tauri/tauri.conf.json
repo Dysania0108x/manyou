@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "漫游",
+  "version": "0.1.0",
+  "identifier": "com.manyou.localarchive",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1421",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{
+      "title": "漫游",
+      "width": 1400,
+      "height": 920,
+      "minWidth": 980,
+      "minHeight": 680,
+      "resizable": true
+    }],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app"],
+    "category": "GraphicsAndDesign",
+    "shortDescription": "本地照片与视频浏览",
+    "longDescription": "漫游把散落在本地文件夹与移动硬盘里的照片和视频汇集到一个私人的视觉空间。"
+  }
+}
