@@ -34,10 +34,10 @@ async function renderCanvas(card:Postcard,photoUrl:string,back:boolean):Promise<
   const ctx=canvas.getContext('2d');if(!ctx)throw new Error('无法创建图片画布');
   ctx.fillStyle='#f7f5f0';ctx.fillRect(0,0,WIDTH,HEIGHT);
   if(back){
-    ctx.fillStyle='#242527';
-
+    ctx.fillStyle='#242527';ctx.font='500 28px sans-serif';ctx.fillText('POSTCARD',105,108);
+    ctx.strokeStyle='#d3d4d5';ctx.beginPath();ctx.moveTo(105,145);ctx.lineTo(1395,145);ctx.stroke();
     ctx.fillStyle='#292929';ctx.font='36px sans-serif';
-    fitText(ctx,card.message,120,245,1230,65,10);
+    fitText(ctx,card.message,120,260,1230,65,9);
     ctx.font='24px sans-serif';ctx.fillStyle='#777';
     if(card.location)fitText(ctx,card.location,120,825,1100,42,2);
     if(card.dateLabel)fitText(ctx,card.dateLabel,120,890,1100,42,2);
