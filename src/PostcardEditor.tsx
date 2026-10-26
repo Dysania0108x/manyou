@@ -44,17 +44,17 @@ async function renderCanvas(card:Postcard,photoUrl:string,back:boolean):Promise<
   }else{
     const image=new Image();image.crossOrigin='anonymous';image.src=photoUrl;
     await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=()=>reject(new Error('无法读取这张照片，请确认原件仍在本地。'));});
-    const margin=card.layout==='full'?0:card.layout==='gallery'?76:100;
-    const bottom=card.layout==='full'?0:card.layout==='gallery'?110:175;
+    const margin=card.layout==='full'?0:card.layout==='gallery'?95:80;
+    const bottom=card.layout==='full'?0:card.layout==='gallery'?155:240;
     const w=WIDTH-2*margin,h=HEIGHT-margin-bottom;
     const scale=Math.max(w/image.naturalWidth,h/image.naturalHeight);
     const cropW=w/scale,cropH=h/scale;
     ctx.drawImage(image,(image.naturalWidth-cropW)/2,(image.naturalHeight-cropH)/2,cropW,cropH,margin,margin,w,h);
     if(card.layout!=='full'){
-      ctx.fillStyle='#292a2c';ctx.font='bold 24px sans-serif';
-      if(card.location)ctx.fillText(card.location,margin,HEIGHT-67);
+      ctx.fillStyle='#292a2c';ctx.font=card.layout==='archive'?'600 64px sans-serif':'500 25px sans-serif';
+      if(card.location)ctx.fillText(card.location,margin,HEIGHT-(card.layout==='archive'?112:85));
       ctx.fillStyle='#818286';ctx.font='22px sans-serif';
-      if(card.dateLabel)ctx.fillText(card.dateLabel,margin,HEIGHT-30);
+      if(card.dateLabel)ctx.fillText(card.dateLabel,margin,HEIGHT-42);
     }
   }
   return canvas;
@@ -88,7 +88,7 @@ export default function PostcardEditor({card,media,onSave,onDelete,onClose}:Prop
         <section className="postcard-stage">
           <div className="postcard-stage-top"><span>{back?'02 / BACK':'01 / FRONT'}</span><button onClick={()=>setBack(x=>!x)}><RotateCcw size={15}/> 翻转明信片</button></div>
           <div className={'postcard-paper '+(back?'is-back':'')+' layout-'+draft.layout} onClick={()=>{if(!back)setBack(true)}} title={back?'在卡片上直接写字':'点击翻面'}>
-            {back?<div className="postcard-back"><div className="postcard-back-grid"><div className="postcard-handwriting" onClick={e=>e.stopPropagation()}><textarea aria-label="明信片背面文字" value={draft.message} onChange={e=>update({message:e.target.value})} placeholder="写一点什么……" /></div><div className="postcard-address">{draft.location&&<span>{draft.location}</span>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div></div></div>:
+            {back?<div className="postcard-back"><div className="postcard-back-title">POSTCARD</div><div className="postcard-back-grid"><div className="postcard-handwriting" onClick={e=>e.stopPropagation()}><textarea aria-label="明信片背面文字" value={draft.message} onChange={e=>update({message:e.target.value})} placeholder="写一点什么……" /></div><div className="postcard-address">{draft.location&&<span>{draft.location}</span>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div></div></div>:
               <><div className="postcard-image">{photoUrl?<img src={photoUrl} alt="明信片照片"/>:<div className="postcard-missing">原始照片暂时不可用</div>}</div>{draft.layout!=='full'&&(draft.location||draft.dateLabel)&&<div className="postcard-front-caption">{draft.location&&<strong>{draft.location}</strong>}{draft.dateLabel&&<span>{draft.dateLabel}</span>}</div>}</>}
           </div>
           <div className="postcard-stage-bottom"><button onClick={()=>setBack(false)} className={!back?'current':''}><ArrowLeft size={14}/> 正面</button><button onClick={()=>setBack(true)} className={back?'current':''}>背面 <ArrowRight size={14}/></button></div>
